@@ -1,0 +1,182 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Application</title>
+</head>
+<body>
+    <h1>Chat</h1>
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }}!</p>
+    {% else %}
+        <p>You are not authenticated.</p>
+    {% endif %}
+
+    <h2>User List</h2>
+    <ul>
+        {% for user in user_list %}
+            <li><a href="#" onclick="selectUser('{{ user.username }}')">{{ user.username }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <div id="chat-log"></div>
+    <input type="text" id="message-input" autofocus>
+    <button id="send-button">Send</button>
+
+    <script>
+        function selectUser(username) {
+            document.querySelector('#message-input').value = `@${username}: `;
+            document.querySelector('#message-input').focus();
+        }
+    </script>
+
+    <script>
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/chat/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const message = e.data;
+            document.querySelector('#chat-log').innerHTML += '<br>' + message;
+        };
+
+        document.querySelector('#send-button').onclick = function(e) {
+            const messageInputDom = document.querySelector('#message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(message);
+            messageInputDom.value = '';
+        };
+
+        document.querySelector('#message-input').focus();
+    </script>
+    <script>
+        function selectUser(username) {
+            document.querySelector('#message-input').value = `@${username}: `;
+            document.querySelector('#message-input').focus();
+            document.querySelector('#send-button').dataset.receiver = username;
+        }
+    </script>
+    
+    <script>
+        // ...
+    
+        document.querySelector('#send-button').onclick = function(e) {
+            const messageInputDom = document.querySelector('#message-input');
+            const message = messageInputDom.value;
+            const receiver = document.querySelector('#send-button').dataset.receiver;
+            const fullMessage = receiver + ':' + message;
+            chatSocket.send(fullMessage);
+            messageInputDom.value = '';
+        };
+    
+        // ...
+    </script>
+    
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .chat-header {
+            margin-bottom: 20px;
+        }
+
+        .chat-log {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        .chat-input {
+            display: flex;
+        }
+
+        .message-input {
+            flex: 1;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container chat-container">
+        <div class="chat-header">
+            <h1>Chat Application</h1>
+            {% if user.is_authenticated %}
+                <p>Welcome, {{ user.username }}!</p>
+            {% else %}
+                <p>You are not authenticated.</p>
+            {% endif %}
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <h2>User List</h2>
+                <ul class="list-group">
+                    {% for user in user_list %}
+                        <li class="list-group-item">
+                            <a href="#" onclick="selectUser('{{ user.username }}')">{{ user.username }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-8">
+                <div class="chat-log">
+                    <p id="chat-messages"></p>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="message-input" class="form-control message-input" autofocus>
+                    <button id="send-button" class="btn btn-primary">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectUser(username) {
+            const messageInputDom = document.querySelector('#message-input');
+            messageInputDom.value = `@${username}: `;
+            messageInputDom.focus();
+            document.querySelector('#send-button').dataset.receiver = username;
+        }
+
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/chat/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const message = e.data;
+            const chatMessagesDom = document.querySelector('#chat-messages');
+            const p = document.createElement('p');
+            p.innerText = message;
+            chatMessagesDom.appendChild(p);
+        };
+
+        document.querySelector('#send-button').onclick = function(e) {
+            const messageInputDom = document.querySelector('#message-input');
+            const message = messageInputDom.value;
+            const receiver = document.querySelector('#send-button').dataset.receiver;
+            const fullMessage = receiver + ':' + message;
+            chatSocket.send(fullMessage);
+            messageInputDom.value = '';
+        };
+
+        document.querySelector('#message-input').focus();
+    </script>
+</body>
+</html>

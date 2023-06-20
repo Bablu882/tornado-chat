@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Application</title>
+</head>
+<body>
+    <h1>Chat</h1>
+    {% if user.is_authenticated %}
+        <p>Welcome, {{ user.username }}!</p>
+    {% else %}
+        <p>You are not authenticated.</p>
+    {% endif %}
+
+    <h2>User List</h2>
+    <ul>
+        {% for user in user_list %}
+            <li><a href="#" onclick="selectUser('{{ user.username }}')">{{ user.username }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <div id="chat-log"></div>
+    <input type="text" id="message-input" autofocus>
+    <button id="send-button">Send</button>
+
+    <script>
+        function selectUser(username) {
+            document.querySelector('#message-input').value = `@${username}: `;
+            document.querySelector('#message-input').focus();
+        }
+    </script>
+
+    <script>
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/chat/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const message = e.data;
+            document.querySelector('#chat-log').innerHTML += '<br>' + message;
+        };
+
+        document.querySelector('#send-button').onclick = function(e) {
+            const messageInputDom = document.querySelector('#message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(message);
+            messageInputDom.value = '';
+        };
+
+        document.querySelector('#message-input').focus();
+    </script>
+</body>
+</html>
